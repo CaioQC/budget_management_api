@@ -7,6 +7,8 @@
 |
 */
 
+import ExpensesController from '#controllers/expenses_controller'
+import RevenuesController from '#controllers/revenues_controller'
 import router from '@adonisjs/core/services/router'
 
 router.get('/', async () => {
@@ -14,3 +16,6 @@ router.get('/', async () => {
     hello: 'world',
   }
 })
+
+router.resource("/revenues", RevenuesController).apiOnly()
+router.resource("/expenses", ExpensesController).apiOnly()
