@@ -11,6 +11,9 @@ export default class Expense extends BaseModel {
   @column()
   declare valor: number
 
+  @column()
+  declare data_da_despesa: Date
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
