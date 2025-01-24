@@ -42,4 +42,20 @@ export default class RevenuesController {
             return response.status(200).json(revenue)
         }
     }
+
+    async update({response, request, params}:HttpContext){
+        const revenueId = params.id
+
+        const revenueToUpdate = await Revenue.findOrFail(revenueId)
+
+        const data = request.only([
+            "descricao",
+            "valor",
+            "data_da_receita"
+        ])
+
+        await revenueToUpdate.merge({ descricao : data.descricao ?? revenueToUpdate.descricao, valor : data.valor ?? revenueToUpdate.valor, data_da_receita : data.data_da_receita ?? revenueToUpdate.data_da_receita }).save()
+
+        return response.status(200).json(revenueToUpdate)
+    }
 }

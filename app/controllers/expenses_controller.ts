@@ -15,7 +15,7 @@ export default class ExpensesController {
             'data_da_despesa'
         ])
 
-        const query = Expense.query().where("descricao", data.descricao).whereRaw("TO_CHAR(data_da_receita, 'MM') = ?", [DateTime.fromFormat(data.data_da_despesa, "MM-dd-yyyy").toFormat('MM')])
+        const query = Expense.query().where("descricao", data.descricao).whereRaw("TO_CHAR(data_da_despesa, 'MM') = ?", [DateTime.fromFormat(data.data_da_despesa, "MM-dd-yyyy").toFormat('MM')])
 
         const queryExpense = await query
 
@@ -23,7 +23,7 @@ export default class ExpensesController {
             return response.status(409).json({ message : "A descrição é inválida, pois ela já foi registrada esse mês" })
         }
 
-        else{  
+        else{
             const newExpense = await Expense.create(data)
             return response.status(200).json(newExpense)
         }
@@ -41,5 +41,21 @@ export default class ExpensesController {
         else{
             return response.status(200).json(expense)
         }
+    }
+
+    async update({response, request, params}:HttpContext){
+        const expenseId = params.id
+
+        const expenseToUpdate = await Expense.findOrFail(expenseId)
+
+        const data = request.only([
+            "descricao",
+            "valor",
+            "data_da_despesa"
+        ])
+
+        await expenseToUpdate.merge({ descricao : data.descricao ?? expenseToUpdate.descricao, valor : data.valor ?? expenseToUpdate.valor, data_da_despesa : data.data_da_despesa ?? expenseToUpdate.data_da_despesa }).save()
+
+        return response.status(200).json(expenseToUpdate)
     }
 }
