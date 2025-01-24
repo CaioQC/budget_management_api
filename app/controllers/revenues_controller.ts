@@ -1,5 +1,5 @@
 import Revenue from '#models/revenue'
-import type { HttpContext } from '@adonisjs/core/http'
+import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
 export default class RevenuesController {
@@ -57,5 +57,15 @@ export default class RevenuesController {
         await revenueToUpdate.merge({ descricao : data.descricao ?? revenueToUpdate.descricao, valor : data.valor ?? revenueToUpdate.valor, data_da_receita : data.data_da_receita ?? revenueToUpdate.data_da_receita }).save()
 
         return response.status(200).json(revenueToUpdate)
+    }
+
+    async destroy({response, params}:HttpContext){
+        const revenueId = params.id
+        
+        const revenueToDelete = await Revenue.findOrFail(revenueId)
+
+        await revenueToDelete.delete()
+
+        return response.status(200).json({ message : "The revenue was successfully deleted." })
     }
 }

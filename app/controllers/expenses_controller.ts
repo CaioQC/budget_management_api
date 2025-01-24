@@ -58,4 +58,14 @@ export default class ExpensesController {
 
         return response.status(200).json(expenseToUpdate)
     }
+
+    async destroy({response, params}:HttpContext){
+        const expenseId = params.id
+        
+        const expenseToDelete = await Expense.findOrFail(expenseId)
+
+        await expenseToDelete.delete()
+
+        return response.status(200).json({ message : "The expense was successfully deleted." })
+    }
 }
