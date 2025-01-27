@@ -13,7 +13,8 @@ export default class ExpensesController {
         const data = request.only([
             'descricao',
             'valor',
-            'data_da_despesa'
+            'data_da_despesa',
+            'expense_category_id'
         ])
 
         const queryExpenseDescriptions = Expense.query().where("descricao", data.descricao).whereRaw("TO_CHAR(data_da_despesa, 'MM') = ?", [DateTime.fromFormat(data.data_da_despesa, "MM-dd-yyyy").toFormat('MM')])
@@ -25,7 +26,12 @@ export default class ExpensesController {
         }
 
         else{
-            const newExpense = await Expense.create(data)
+            const {expense_category_id, ...data_without_category} = data
+
+            const newExpense = await Expense.create(
+                expense_category_id ? data : {...data_without_category, expense_category_id : 8}
+            )
+            await newExpense.load('category')
 
             return response.status(200).json(newExpense)
         }
@@ -53,7 +59,8 @@ export default class ExpensesController {
         const data = request.only([
             "descricao",
             "valor",
-            "data_da_despesa"
+            "data_da_despesa",
+            "expense_category_id"
         ])
 
         const queryExpenseDescriptions = Expense.query().where("descricao", data.descricao ?? expenseToUpdate.descricao).whereRaw("TO_CHAR(data_da_despesa, 'MM') = ?", [data.data_da_despesa ? DateTime.fromFormat(data.data_da_despesa, "MM-dd-yyyy").toFormat('MM') : DateTime.fromISO(expenseToUpdate.data_da_despesa.toISOString()).toFormat("MM")])
@@ -65,7 +72,7 @@ export default class ExpensesController {
         }
 
         else{
-            const updatedExpense = await expenseToUpdate.merge({ descricao : data.descricao ?? expenseToUpdate.descricao, valor : data.valor ?? expenseToUpdate.valor, data_da_despesa : data.data_da_despesa ?? expenseToUpdate.data_da_despesa }).save()
+            const updatedExpense = await expenseToUpdate.merge({ descricao : data.descricao ?? expenseToUpdate.descricao, valor : data.valor ?? expenseToUpdate.valor, data_da_despesa : data.data_da_despesa ?? expenseToUpdate.data_da_despesa, expense_category_id : data.expense_category_id ?? expenseToUpdate.expense_category_id }).save()
 
             return response.status(200).json(updatedExpense)
         }
