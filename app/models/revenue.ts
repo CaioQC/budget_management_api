@@ -6,13 +6,13 @@ export default class Revenue extends BaseModel {
   declare id: number
 
   @column()
-  declare descricao: string
+  declare description: string
 
   @column()
-  declare valor: number
+  declare amount: number
 
   @column()
-  declare data_da_receita : Date
+  declare revenue_date : Date
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

@@ -11,18 +11,18 @@ export default class ExpensesController {
 
     async store({response, request}:HttpContext){
         const data = request.only([
-            'descricao',
-            'valor',
-            'data_da_despesa',
+            'description',
+            'amount',
+            'expense_date',
             'expense_category_id'
         ])
 
-        const queryExpenseDescriptions = Expense.query().where("descricao", data.descricao).whereRaw("TO_CHAR(data_da_despesa, 'MM') = ?", [DateTime.fromFormat(data.data_da_despesa, "MM-dd-yyyy").toFormat('MM')])
+        const queryExpenseDescriptions = Expense.query().where("description", data.description).whereRaw("TO_CHAR(expense_date, 'MM') = ?", [DateTime.fromFormat(data.expense_date, "MM-dd-yyyy").toFormat('MM')])
 
         const expenseDescriptions = await queryExpenseDescriptions
 
         if(expenseDescriptions.length > 0){
-            return response.status(409).json({ message : "A descrição é inválida, pois ela já foi registrada esse mês" })
+            return response.status(409).json({ message : "This description is invalid because there is already a expense with identical description registered this month." })
         }
 
         else{
@@ -57,23 +57,24 @@ export default class ExpensesController {
         const expenseToUpdate = await Expense.findOrFail(expenseId)
 
         const data = request.only([
-            "descricao",
-            "valor",
-            "data_da_despesa",
+            "description",
+            "amount",
+            "expense_date",
             "expense_category_id"
         ])
 
-        const queryExpenseDescriptions = Expense.query().where("descricao", data.descricao ?? expenseToUpdate.descricao).whereRaw("TO_CHAR(data_da_despesa, 'MM') = ?", [data.data_da_despesa ? DateTime.fromFormat(data.data_da_despesa, "MM-dd-yyyy").toFormat('MM') : DateTime.fromISO(expenseToUpdate.data_da_despesa.toISOString()).toFormat("MM")])
+        const queryExpenseDescriptions = Expense.query().where("description", data.description ?? expenseToUpdate.description).whereRaw("TO_CHAR(expense_date, 'MM') = ?", [data.expense_date ? DateTime.fromFormat(data.expense_date, "MM-dd-yyyy").toFormat('MM') : DateTime.fromISO(expenseToUpdate.expense_date.toISOString()).toFormat("MM")])
 
         const expenseDescriptions = await queryExpenseDescriptions
 
         if(expenseDescriptions.length > 0){
-            return response.status(409).json({ message : "A descrição é inválida, pois ela já foi registrada esse mês" })
+            return response.status(409).json({ message : "The update can not be completed because there is already a expense with identical description registered this month." })
         }
 
         else{
-            const updatedExpense = await expenseToUpdate.merge({ descricao : data.descricao ?? expenseToUpdate.descricao, valor : data.valor ?? expenseToUpdate.valor, data_da_despesa : data.data_da_despesa ?? expenseToUpdate.data_da_despesa, expense_category_id : data.expense_category_id ?? expenseToUpdate.expense_category_id }).save()
+            const updatedExpense = await expenseToUpdate.merge({ description : data.description ?? expenseToUpdate.description, amount : data.amount ?? expenseToUpdate.amount, expense_date : data.expense_date ?? expenseToUpdate.expense_date, expense_category_id : data.expense_category_id ?? expenseToUpdate.expense_category_id }).save()
 
+            await updatedExpense.load("category")
             return response.status(200).json(updatedExpense)
         }
     }

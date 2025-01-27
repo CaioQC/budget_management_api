@@ -8,13 +8,13 @@ export default class Expense extends BaseModel {
   declare id: number
 
   @column()
-  declare descricao: string
+  declare description: string
 
   @column()
-  declare valor: number
+  declare amount: number
 
   @column()
-  declare data_da_despesa: Date
+  declare expense_date: Date
 
   @column()
   declare expense_category_id: number

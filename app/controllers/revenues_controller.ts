@@ -11,17 +11,17 @@ export default class RevenuesController {
 
     async store({response, request}:HttpContext){
         const data = request.only([
-            'descricao',
-            'valor',
-            'data_da_receita'
+            'description',
+            'amount',
+            'revenue_date'
         ])
 
-        const queryRevenueDescriptions = Revenue.query().where("descricao", data.descricao).whereRaw("TO_CHAR(data_da_receita, 'MM') = ?", [DateTime.fromFormat(data.data_da_receita, "MM-dd-yyyy").toFormat('MM')])
+        const queryRevenueDescriptions = Revenue.query().where("description", data.description).whereRaw("TO_CHAR(revenue_date, 'MM') = ?", [DateTime.fromFormat(data.revenue_date, "MM-dd-yyyy").toFormat('MM')])
         
         const revenueDescriptions = await queryRevenueDescriptions
 
         if(revenueDescriptions.length > 0){
-            return response.status(409).json({ message : "Essa descrição é inválida, pois já foi registrada esse mês." })
+            return response.status(409).json({ message : "This description is invalid because there is already a revenue with identical description registered this month." })
         }
 
         else{
@@ -51,12 +51,12 @@ export default class RevenuesController {
         const revenueToUpdate = await Revenue.findOrFail(revenueId)
 
         const data = request.only([
-            "descricao",
-            "valor",
-            "data_da_receita"
+            "description",
+            "amount",
+            "revenue_date"
         ])
 
-        const queryRevenueDescriptions = Revenue.query().where("descricao", data.descricao ?? revenueToUpdate.descricao).whereRaw("TO_CHAR(data_da_receita, 'MM') = ?", [data.data_da_receita ? DateTime.fromFormat(data.data_da_receita, "MM-dd-yyyy").toFormat('MM') : DateTime.fromISO(revenueToUpdate.data_da_receita.toISOString()).toFormat("MM")])
+        const queryRevenueDescriptions = Revenue.query().where("description", data.description ?? revenueToUpdate.description).whereRaw("TO_CHAR(revenue_date, 'MM') = ?", [data.revenue_date ? DateTime.fromFormat(data.revenue_date, "MM-dd-yyyy").toFormat('MM') : DateTime.fromISO(revenueToUpdate.revenue_date.toISOString()).toFormat("MM")])
         
         const revenueDescriptions = await queryRevenueDescriptions
 
@@ -65,7 +65,7 @@ export default class RevenuesController {
         }
 
         else{
-            const updatedRevenue = await revenueToUpdate.merge({ descricao : data.descricao ?? revenueToUpdate.descricao, valor : data.valor ?? revenueToUpdate.valor, data_da_receita : data.data_da_receita ?? revenueToUpdate.data_da_receita }).save()
+            const updatedRevenue = await revenueToUpdate.merge({ description : data.description ?? revenueToUpdate.description, amount : data.amount ?? revenueToUpdate.amount, revenue_date : data.revenue_date ?? revenueToUpdate.revenue_date }).save()
 
             return response.status(200).json(updatedRevenue)
         }
