@@ -19,3 +19,5 @@ router.get('/', async () => {
 
 router.resource("/revenues", RevenuesController).apiOnly()
 router.resource("/expenses", ExpensesController).apiOnly()
+router.get("/revenues/:year/:month", [RevenuesController, "getYearAndMonth"])
+router.get("/expenses/:year/:month", [ExpensesController])

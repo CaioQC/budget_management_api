@@ -3,8 +3,16 @@ import { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
 export default class RevenuesController {
-    async index({response}:HttpContext){
-        const revenues = await Revenue.query()
+    async index({response, request}:HttpContext){
+        const query = Revenue.query()
+
+        const { description } = request.qs()
+
+        if(description){
+            query.whereLike("description", "%" + description + "%")
+        }
+
+        const revenues = await query
 
         return response.status(200).json(revenues)
     }
@@ -79,5 +87,15 @@ export default class RevenuesController {
         await revenueToDelete.delete()
 
         return response.status(200).json({ message : "The revenue was successfully deleted." })
+    }
+
+    async getYearAndMonth({params, response}:HttpContext){
+        const { year, month } = params
+        
+        console.log([year], [month])
+        
+        const queryRevenuesByYearAndMonth = await Revenue.query().whereRaw("TO_CHAR(revenue_date, 'YYYY') = ?", [year]).whereRaw("TO_CHAR(revenue_date, 'MM') = ?", [month])
+
+        return response.status(200).json(queryRevenuesByYearAndMonth)
     }
 }
