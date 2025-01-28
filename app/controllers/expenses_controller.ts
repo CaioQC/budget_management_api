@@ -3,8 +3,16 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 
 export default class ExpensesController {
-    async index({response}:HttpContext){
-        const expenses = await Expense.query()
+    async index({response, request}:HttpContext){
+        const query = Expense.query()
+
+        const { description } = request.qs()
+
+        if(description){
+            query.whereLike("description", "%" + description + "%")
+        }
+
+        const expenses = await query
 
         return response.status(200).json(expenses)
     }
@@ -87,5 +95,13 @@ export default class ExpensesController {
         await expenseToDelete.delete()
 
         return response.status(200).json({ message : "The expense was successfully deleted." })
+    }
+
+    async getYearAndMonth({response, params}:HttpContext){
+        const { year, month } = params
+
+        const queryExpensesByYearAndMonth = await Expense.query().whereRaw("TO_CHAR(expense_date, 'YYYY') = ?", [year]).whereRaw("TO_CHAR(expense_date, 'MM', = ?", [month])
+
+        return response.status(200).json(queryExpensesByYearAndMonth)   
     }
 }
