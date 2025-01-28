@@ -92,8 +92,6 @@ export default class RevenuesController {
     async getYearAndMonth({params, response}:HttpContext){
         const { year, month } = params
         
-        console.log([year], [month])
-        
         const queryRevenuesByYearAndMonth = await Revenue.query().whereRaw("TO_CHAR(revenue_date, 'YYYY') = ?", [year]).whereRaw("TO_CHAR(revenue_date, 'MM') = ?", [month])
 
         return response.status(200).json(queryRevenuesByYearAndMonth)

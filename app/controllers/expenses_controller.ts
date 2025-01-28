@@ -100,7 +100,7 @@ export default class ExpensesController {
     async getYearAndMonth({response, params}:HttpContext){
         const { year, month } = params
 
-        const queryExpensesByYearAndMonth = await Expense.query().whereRaw("TO_CHAR(expense_date, 'YYYY') = ?", [year]).whereRaw("TO_CHAR(expense_date, 'MM', = ?", [month])
+        const queryExpensesByYearAndMonth = await Expense.query().whereRaw("TO_CHAR(expense_date, 'YYYY') = ?", [year]).whereRaw("TO_CHAR(expense_date, 'MM') = ?", [month])
 
         return response.status(200).json(queryExpensesByYearAndMonth)   
     }
