@@ -5,15 +5,15 @@ import { DateTime } from 'luxon'
 export default class ExpensesController {
     async index({response, request}:HttpContext){
         try{
-            const query = Expense.query()
+            const queryExpenses = Expense.query()
     
             const { description } = request.qs()
     
             if(description){
-                query.whereLike("description", "%" + description + "%")
+                queryExpenses.whereLike("description", "%" + description + "%")
             }
     
-            const expenses = await query
+            const expenses = await queryExpenses
     
             return response.status(200).json(expenses)
         }

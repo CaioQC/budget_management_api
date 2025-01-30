@@ -5,15 +5,15 @@ import { DateTime } from 'luxon'
 export default class RevenuesController {
     async index({response, request}:HttpContext){
         try{
-            const query = Revenue.query()
+            const queryRevenues = Revenue.query()
     
             const { description } = request.qs()
     
             if(description){
-                query.whereLike("description", "%" + description + "%")
+                queryRevenues.whereLike("description", "%" + description + "%")
             }
     
-            const revenues = await query
+            const revenues = await queryRevenues
     
             return response.status(200).json(revenues)
         }
@@ -94,7 +94,7 @@ export default class RevenuesController {
             else{
                 const updatedRevenue = await revenueToUpdate.merge({ description : data.description ?? revenueToUpdate.description, amount : data.amount ?? revenueToUpdate.amount, revenue_date : data.revenue_date ?? revenueToUpdate.revenue_date }).save()
     
-                return response.status(200).json(updatedRevenue)
+                return response.status(201).json(updatedRevenue)
             }
         }
 
@@ -111,7 +111,7 @@ export default class RevenuesController {
     
             await revenueToDelete.delete()
     
-            return response.status(200).json({ message : "The revenue was successfully deleted." })
+            return response.status(204).json({ message : "The revenue was successfully deleted." })
         }
 
         catch(error){
